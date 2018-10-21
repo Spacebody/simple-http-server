@@ -153,7 +153,8 @@ def get_handler(file, has_range=None, host=""):
         file_type = mimetypes.guess_type(file, strict=True)[0] \
             if mimetypes.guess_type(file, strict=True)[0] else 'application/octet-stream'
     content_type = f"Content-Type: {file_type}"
-    content_length = f"Content-Length: {os.path.getsize(file)}"  # get file size
+    # get file size
+    content_length = f"Content-Length: {len(content.encode('utf-8'))}"
     encoding = f"Content-Encoding: utf-8"
     if has_range:  # Range Header
         accept_range = "Accept-Ranges: bytes"
@@ -195,9 +196,12 @@ def error_handler(error_code):
 def render_page(file, isdir=False):
     if isdir:  # directory
         file_list = os.listdir(file)  # get the files in the directory, as a list
-        link_list = "".join([f"<a href='./{f}'>{f}</a></br>" for f in file_list])  # catenate strings to a single string
-        content = f"<!DOC HTML><html><head><title>Index of {file}</title></head>" + "</title></head>" + \
-            f"<h1>Index of {file} </h1><hr><pre>{link_list}</pre><hr></body></html>"
+        if file == "./":
+            link_list = "".join([f"<a href='{file}{f}'>{f}</a></br>" for f in file_list])
+        else:
+            link_list = "".join([f"<a href='{file}/{f}'>{f}</a></br>" for f in file_list])  # catenate strings to a single string
+        content = f"<!DOC HTML><html><head><title>Index of {file} </title></head>" + \
+            f"<body><h1>Index of {file}</h1><hr><pre>{''.join(link_list)}</pre></hr></body></html>"
         print(content)
     else:  # file
         try:
